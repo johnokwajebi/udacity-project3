@@ -28,7 +28,6 @@ commands:
             --stack-name udapeople-frontend-<< parameters.workflow_id >>
   
 
-
 jobs:
   build-frontend:
     docker:
@@ -173,26 +172,72 @@ jobs:
 
 
 
-  # configure-infrastructure:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+    steps:
+      # Checkout code from git
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - run:
+          name: Install dependencies
+          command: |
+            # Your code here
+            exit 1
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            exit 1
+      # Here's where you will add some code to rollback on failure      
 
 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["53:62:38:d9:08:01:da:e4:83:01:6c:76:b9:81:c9:de"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install ansible
+          command: |
+            apk add --update ansible 
+
+      - create-dotenv-file
+      - run:
+          name: Configure server
+          working_directory: .circle/ansible
+          command: |
+            ansible-playbook -i inventory.txt configure-server.yml
+
+
+configure-infrastructure:
+    executor: python
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "5c:b0:d2:b6:07:d4:0a:9a:d0:d9:4e:9d:e0:7b:3f:82"
+      - attach_workspace:
+          at: .
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: Install ansible
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Configure server
+          working_directory: ./.circleci/ansible
+          command: |
+              cd .circleci/ansible
+              cat inventory.txt
+              ansible-playbook -i inventory.txt configure-server.yml
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 
 
@@ -216,3 +261,5 @@ workflows:
       #     requires: [build-frontend]
       - deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+            requires: [deploy-infrastructure]
