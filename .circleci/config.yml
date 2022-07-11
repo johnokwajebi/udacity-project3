@@ -10,22 +10,41 @@ commands:
       workflow_id:
         type: string
 
+
     steps:
       - run:
-          name: Destroy backend environment
+          name: Destroy backend environment and frontend on failure 
           when: on_fail
           command: |
             aws cloudformation delete-stack \
-            --stack-name udapeople-backend-<< parameters.workflow_id >>
-
-
-      - run:
-          name: Destroy frontend environment
-          when: on_fail
-          command: |
-            aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack \
-            --stack-name udapeople-frontend-<< parameters.workflow_id >>
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}""
+
+
+
+    # steps:
+    #   - run:
+    #       name: Destroy backend environment
+    #       when: on_fail
+    #       command: |
+    #         aws cloudformation delete-stack \
+    #         --stack-name udapeople-backend-<< parameters.workflow_id >>
+
+
+    #   - run:
+    #       name: Destroy frontend environment
+    #       when: on_fail
+    #       command: |
+    #         aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
+    #         aws cloudformation delete-stack \
+    #         --stack-name udapeople-frontend-<< parameters.workflow_id >>
+
+
+
+
+
   create-dotenv:
     description: Create .env file
     steps:
@@ -382,7 +401,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 0
+              return 1
             else
               return 1
             fi
