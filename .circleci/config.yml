@@ -26,7 +26,22 @@ commands:
             aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
             aws cloudformation delete-stack \
             --stack-name udapeople-frontend-<< parameters.workflow_id >>
-  
+  create-dotenv:
+    description: Create .env file
+    steps:
+      - run:
+          name: Add env vars to .env file
+          command: |
+            echo ENVIRONMENT=$ENVIRONMENT > "./backend/.env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "./backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "./backend/.env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "./backend/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "./backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "./backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "./backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "./backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "./backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "./backend/.env"  
 
 jobs:
   build-frontend:
@@ -210,7 +225,7 @@ jobs:
   run-migrations:
       
     docker: 
-      - image: cimg/node:14.19.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -218,7 +233,7 @@ jobs:
             - backend-build
       - aws-cli/setup:
           profile-name: default
-      # - create-dotenv-file
+      - create-dotenv
       - run:
           name: Run migrations
           command: |
