@@ -1,0 +1,35 @@
+---
+- name: "show remote environment"
+  shell: env
+  
+- name: "copy zipped archive"
+  become: true
+  synchronize:
+    src: ./artifact.tar.gz
+    dest: /var/www/artifact.tar.gz
+    recursive: true
+
+- name: Create directory for backend
+  file:
+    path: /var/www/backend
+    state: directory
+
+- name: Extract the zipped artifact
+  shell: tar xzvf artifact.tar.gz --directory /var/www/backend
+
+- name: Install dependencies
+  args:
+    chdir: /var/www/backend
+  shell: npm install && npm run build
+         
+
+- name: "Stop applications currently running"
+  become: true
+  ignore_errors: true
+  command: pm2 stop default
+
+- name: "Start backend with pm2"
+  become: true
+  args:
+    chdir: /var/www/backend
+  shell: pm2 start npm -- start

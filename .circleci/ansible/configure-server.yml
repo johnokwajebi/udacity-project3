@@ -1,6 +1,6 @@
 ---
 
-- name: configuration play 
+- name: configuration play to install server dependencies
   hosts: web
   user: ubuntu
   become: true
