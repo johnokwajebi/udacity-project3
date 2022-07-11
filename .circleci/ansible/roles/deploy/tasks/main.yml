@@ -4,20 +4,20 @@
   become: true
   synchronize:
     src: ../../artifact.tar.gz
-    dest: /var/www/artifact.tar.gz
+    dest: /home/ubuntu/artifact.tar.gz
     recursive: true
 
 - name: Create directory for backend
   file:
-    path: /var/www/backend
+    path: /home/ubuntu/backend
     state: directory
 
 - name: Extract the zipped artifact
-  shell: tar xzvf artifact.tar.gz --directory /var/www/backend
+  shell: tar xzvf artifact.tar.gz --directory backend
 
 - name: Install dependencies
   args:
-    chdir: /var/www/backend
+    chdir: /home/ubuntu/backend
   shell: npm install && npm run build
          
 
@@ -29,5 +29,5 @@
 - name: "Start backend with pm2"
   become: true
   args:
-    chdir: /var/www/backend
+    chdir: /home/ubuntu/backend
   shell: pm2 start npm -- start
