@@ -55,13 +55,9 @@ commands:
           name: Revert migrations
           when: on_fail
           command: | 
-            SUCCESS = $(curl --insecure https://kvdb.io/3RZvFWwrc5J93cjMYDYFxR/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            if(( $SUCCESS==1 )); 
-            then
               cd backend
               npm install
-              npm run migrations:revert           
-            fi
+              npm run migrations:revert
             
 
 
@@ -289,8 +285,8 @@ jobs:
           profile-name: default
       - run:
           name: Get backend url
-          working_directory: ./frontend
           command: |
+            cd frontend
             BACKEND_IP=$(aws ec2 describe-instances  \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
