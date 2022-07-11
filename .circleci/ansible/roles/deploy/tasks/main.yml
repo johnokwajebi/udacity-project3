@@ -1,7 +1,5 @@
 ---
-- name: "show remote environment"
-  shell: env
-  
+
 - name: "copy zipped archive"
   become: true
   synchronize:
