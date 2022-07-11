@@ -13,14 +13,14 @@ commands:
 
     steps:
       - run:
-          name: Destroy backend environment and frontend on failure 
+          name: Destroy backend and frontend environment
           when: on_fail
           command: |
             aws cloudformation delete-stack \
-            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+            --stack-name udapeople-backend-<< parameters.workflow_id >>
+            aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
             aws cloudformation delete-stack \
-            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            --stack-name udapeople-frontend-<< parameters.workflow_id >>
 
 
 
