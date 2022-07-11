@@ -24,12 +24,12 @@
     state: latest
     update_cache: true
 
-- name: "install n"
-  become: yes
-  npm:
-    name: n
-    global: true
-    production: true
+# - name: "install n"
+#   become: yes
+#   npm:
+#     name: n
+#     global: true
+#     production: true
 
 - name: "install nodejs 13.8.0"
   become: yes

@@ -179,6 +179,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["53:62:38:d9:08:01:da:e4:83:01:6c:76:b9:81:c9:de"]
+      - aws-cli/setup:
+          profile-name: default
       - attach_workspace:
           at: .
       - run:
@@ -195,8 +197,6 @@ jobs:
 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-
-
 
 
 
