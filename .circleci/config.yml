@@ -460,7 +460,7 @@ jobs:
       - run:
           name: Get old stack workflow id then Clean up
           command: |
-          
+
             export OldWorkflowID=$(curl --insecure https://kvdb.io/3RZvFWwrc5J93cjMYDYFxR/WorkflowID)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -470,9 +470,7 @@ jobs:
             echo Stack names: "${STACKS[@]}"          
             
             # You can use any condition like:
-            # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-            # if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]] 
             then
               echo ".......Cleaning Up Old Stack"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
@@ -521,6 +519,11 @@ workflows:
       #     requires: [build-frontend]
       - deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+                    filters:
+          branches:
+            only:
+              - main
+  
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
