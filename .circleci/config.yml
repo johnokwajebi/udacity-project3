@@ -24,26 +24,6 @@ commands:
 
 
 
-    # steps:
-    #   - run:
-    #       name: Destroy backend environment
-    #       when: on_fail
-    #       command: |
-    #         aws cloudformation delete-stack \
-    #         --stack-name udapeople-backend-<< parameters.workflow_id >>
-
-
-    #   - run:
-    #       name: Destroy frontend environment
-    #       when: on_fail
-    #       command: |
-    #         aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
-    #         aws cloudformation delete-stack \
-    #         --stack-name udapeople-frontend-<< parameters.workflow_id >>
-
-
-
-
 
   create-dotenv:
     description: Create .env file
@@ -489,18 +469,18 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       - deploy-infrastructure:
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only:
