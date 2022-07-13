@@ -24,26 +24,6 @@ commands:
 
 
 
-    # steps:
-    #   - run:
-    #       name: Destroy backend environment
-    #       when: on_fail
-    #       command: |
-    #         aws cloudformation delete-stack \
-    #         --stack-name udapeople-backend-<< parameters.workflow_id >>
-
-
-    #   - run:
-    #       name: Destroy frontend environment
-    #       when: on_fail
-    #       command: |
-    #         aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
-    #         aws cloudformation delete-stack \
-    #         --stack-name udapeople-frontend-<< parameters.workflow_id >>
-
-
-
-
 
   create-dotenv:
     description: Create .env file
@@ -437,7 +417,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Current WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -460,7 +440,7 @@ jobs:
       - run:
           name: Get old stack workflow id then Clean up
           command: |
-          
+
             export OldWorkflowID=$(curl --insecure https://kvdb.io/3RZvFWwrc5J93cjMYDYFxR/WorkflowID)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -470,11 +450,9 @@ jobs:
             echo Stack names: "${STACKS[@]}"          
             
             # You can use any condition like:
-            # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-            # if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]] 
             then
-              echo ".......Cleaning Up Old Stack"
+              echo ".......Cleaning Up Old Stack........."
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
@@ -487,40 +465,26 @@ jobs:
 
 
 
-    # OldWorkflowID=$(aws cloudformation \
-    #         list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-    #         --no-paginate --output text)
-    # echo OldWorkflowID: ${OldWorkflowID}"
-    # echo CurrentWorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
-    # CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
-    # if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
-    # then
-    #   echo "$OldWorkflowID is not $CurrentWorkflowID deleting old version ..."
-    #   aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-    #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-    #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-    # else
-    #   echo "$OldWorkflowID is the same as $CurrentWorkflowID skipping cleanup..."
-    # fi
-
-
-
 
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      - deploy-infrastructure
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only:
+                - main
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
