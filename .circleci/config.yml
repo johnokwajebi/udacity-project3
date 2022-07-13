@@ -452,7 +452,7 @@ jobs:
       - run:
           name: Get old stack workflow id then Clean up
           command: |
-            export OldWorkflowID=$(aws cloudformation \
+            OldWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                     --no-paginate --output text)
             echo OldWorkflowID: ${OldWorkflowID}"
@@ -460,12 +460,12 @@ jobs:
             CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
             if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
             then
-              echo "$OldWorkflowID!=$CurrentWorkflowID deleting old version ..."
+              echo "$OldWorkflowID is not $CurrentWorkflowID deleting old version ..."
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             else
-              echo "$OldWorkflowID==$CurrentWorkflowID skipping cleanup..."
+              echo "$OldWorkflowID is the same as $CurrentWorkflowID skipping cleanup..."
             fi
 
 
@@ -485,19 +485,19 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      - deploy-infrastructure
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - deploy-infrastructure
+      #     # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      - cleanup
+          # requires: [cloudfront-update]
