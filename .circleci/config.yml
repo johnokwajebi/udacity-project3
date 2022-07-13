@@ -505,7 +505,6 @@ workflows:
             branches:
               only:
                 - main
-  
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
