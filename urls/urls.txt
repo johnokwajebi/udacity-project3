@@ -1,8 +1,0 @@
-github link - https://github.com/johnokwajebi/udacity-project3
-
-
-backend url - 
-
-front-end url - http://udapeople-9529ae3.s3-website-us-east-1.amazonaws.com
-
-cloudfront - https://d2lezh3c9qs7oq.cloudfront.net
